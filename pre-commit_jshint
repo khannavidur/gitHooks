@@ -1,0 +1,33 @@
+#!/bin/sh
+
+exec < /dev/tty
+
+files=$(git diff --cached --name-only | grep .js)
+if [ "$files" = "" ]; then
+    exit 0
+fi
+
+pass=true
+
+echo "\nValidating JavaScript.\nJSHINT Errors -"
+
+for file in ${files}; do
+        result=$(jshint ${file})
+        echo "$result"
+done
+
+echo "\nProceed with the commit? [y/n] "
+read answer
+
+if ([ "$answer" == "y" ] || [ "$answer" == "Y" ]); then
+    echo "\nProceeding with commit!"
+else
+    echo "\nAborting Commit!"
+    pass=false
+fi
+
+if $pass; then
+    exit 0
+else
+    exit 1
+fi
